@@ -33,25 +33,32 @@ void setup()
     module.clearDisplay();
 
     bomb.setup();
+    bomb.setDecisecondsOnChangeFunc(
+        [](int deciseconds)
+        {
+            module.setDisplayToDecNumber(deciseconds, _BV(2));
+        });
+
+    bomb.setExplodingFunc(
+        []()
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                module.setDisplayToString("    ");
+                delay(300);
+                module.setDisplayToString("0000");
+                delay(300);
+                module.setDisplayToString("8888");
+                delay(300);
+            }
+        });
 }
 
 void loop()
 {
     if (digitalRead(BTN1_PIN) == LOW && bomb.getStatus() == BOMB_STATUS_NORMAL)
     {
-        bomb.start(60);
+        bomb.start(10);
     }
     bomb.loop();
-    if (bomb.getStatus() == BOMB_STATUS_COUNTDOWN)
-    {
-        module.setDisplayToDecNumber(bomb.getDeciseconds(), _BV(2));
-    }
-    else if (bomb.getStatus() == BOMB_STATUS_EXPLODING)
-    {
-        module.setDisplayToString("8888");
-    }
-    else if (bomb.getStatus() == BOMB_STATUS_EXPLODED)
-    {
-        module.setDisplayToString("----");
-    }
 }

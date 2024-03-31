@@ -18,13 +18,18 @@ public:
     void setup();
     void loop();
     void start(int countDownSeconds);
+    void defuse();
     void reset();
     BombStatus getStatus();
     int getDeciseconds();
+    void setDecisecondsOnChangeFunc(void (*decisecondsOnChangeFunc)(int));
+    void setExplodingFunc(void (*explodingFunc)());
 
 protected:
     BombStatus _status;
     int _countDownSeconds;
+    void (*_decisecondsOnChangeFunc)(int deciseconds);
+    void (*_explodingFunc)();
 
 private:
     unsigned long _timer;
