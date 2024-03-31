@@ -45,7 +45,7 @@ void setup()
 void loop()
 {
     module.setDisplayToString("....");
-    module.clearDisplay();
+    // module.clearDisplay();
 
     if (digitalRead(BTN1_PIN) == LOW)
     {
@@ -59,27 +59,62 @@ void loop()
     }
     if (digitalRead(LINE1_PIN) == HIGH)
     {
-        module.setDisplayToString("L  1");
-        delay(1000);
+        static unsigned long timer1 = millis();
+        if (millis() - timer1 >= 600 && (millis() - timer1) < 2000)
+        {
+            module.setDisplayToString("L  1");
+        }
+        else if (millis() - timer1 > 2000)
+        {
+            timer1 = millis();
+        }
     }
     if (digitalRead(LINE2_PIN) == HIGH)
     {
-        module.setDisplayToString("L  2");
-        delay(1000);
+        static unsigned long timer2 = millis();
+        if (millis() - timer2 >= 600 && (millis() - timer2) < 2000)
+        {
+            module.setDisplayToString("L  2");
+        }
+        else if (millis() - timer2 > 2000)
+        {
+            timer2 = millis();
+        }
     }
     if (digitalRead(LINE3_PIN) == HIGH)
     {
-        module.setDisplayToString("L  3");
-        delay(1000);
+        static unsigned long timer3 = millis();
+        if (millis() - timer3 >= 600 && (millis() - timer3) < 2000)
+        {
+            module.setDisplayToString("L  3");
+        }
+        else if (millis() - timer3 > 2000)
+        {
+            timer3 = millis();
+        }
     }
     if (digitalRead(LINE4_PIN) == HIGH)
     {
-        module.setDisplayToString("L  4");
-        delay(1000);
+        static unsigned long timer4 = millis();
+        if (millis() - timer4 >= 600 && (millis() - timer4) < 2000)
+        {
+            module.setDisplayToString("L  4");
+        }
+        else if (millis() - timer4 > 2000)
+        {
+            timer4 = millis();
+        }
     }
     if (digitalRead(LINE5_PIN) == HIGH)
     {
-        module.setDisplayToString("L  5");
-        delay(1000);
+        static unsigned long timer5 = millis();
+        if (millis() - timer5 >= 600 && (millis() - timer5) < 2000)
+        {
+            module.setDisplayToString("L  5");
+        }
+        else if(millis() - timer5 > 2000)
+        {
+            timer5 = millis();
+        }
     }
 }
