@@ -25,7 +25,7 @@ void BombDisposalExpert::setup()
 {
     _setting.countDownSeconds = 60;
     _setting.changeSeconds = 20;
-    _setting.isDevMode = 1;
+    _setting.isDevMode = 0;
     _settingIndex = BOMB_DISPOSAL_EXPERT_SETTING_INDEX_SECONDS;
     reset();
     _bomb.setup();
@@ -107,6 +107,20 @@ void BombDisposalExpert::loop()
         {
         case BOMB_DISPOSAL_EXPERT_SETTING_INDEX_DEVMODE:
             sprintf(text, "D  %d", _setting.isDevMode);
+            break;
+        case BOMB_DISPOSAL_EXPERT_SETTING_INDEX_CHANGE_SECONDS:
+            if (_setting.changeSeconds > 99)
+            {
+                sprintf(text, "C%d", _setting.changeSeconds);
+            }
+            else if (_setting.changeSeconds < 9)
+            {
+                sprintf(text, "C  %d", _setting.changeSeconds);
+            }
+            else
+            {
+                sprintf(text, "C %d", _setting.changeSeconds);
+            }
             break;
         case BOMB_DISPOSAL_EXPERT_SETTING_INDEX_SECONDS:
         default:
@@ -204,6 +218,12 @@ void BombDisposalExpert::start()
             if (_setting.countDownSeconds > 120)
             {
                 _setting.countDownSeconds = 10;
+            }
+        case BOMB_DISPOSAL_EXPERT_SETTING_INDEX_CHANGE_SECONDS:
+            _setting.changeSeconds = _setting.changeSeconds + 5;
+            if (_setting.changeSeconds > 30)
+            {
+                _setting.changeSeconds = 5;
             }
         default:
             break;
