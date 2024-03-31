@@ -26,7 +26,7 @@ void Bomb::loop()
                 _decisecondsOnChangeFunc(_deciseconds);
             }
 
-            if (_deciseconds == 0)
+            if (_deciseconds <= 0)
             {
                 _status = BOMB_STATUS_EXPLODING;
                 if (_explodingFunc != nullptr)
@@ -54,6 +54,11 @@ void Bomb::start(int countDownSeconds)
     _deciseconds = countDownSeconds * 10;
     _timer = millis();
     _status = BOMB_STATUS_COUNTDOWN;
+}
+
+void Bomb::setDeciseconds(int deciseconds)
+{
+    _deciseconds = deciseconds;
 }
 
 void Bomb::defuse()

@@ -25,6 +25,7 @@ public:
     void defuse();
     void reset();
     BombStatus getStatus();
+    void setDeciseconds(int deciseconds);
     int getDeciseconds();
     void setDecisecondsOnChangeFunc(std::function<void(int)> decisecondsOnChangeFunc);
     void setExplodingFunc(std::function<void()> explodingFunc);
@@ -34,10 +35,10 @@ protected:
     int _countDownSeconds;
     std::function<void(int)> _decisecondsOnChangeFunc;
     std::function<void()> _explodingFunc;
+    int _deciseconds;
 
 private:
     unsigned long _timer;
-    int _deciseconds;
 };
 
 #endif
