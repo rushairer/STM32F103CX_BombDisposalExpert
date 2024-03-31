@@ -71,12 +71,12 @@ int Bomb::getDeciseconds()
     return _deciseconds;
 }
 
-void Bomb::setDecisecondsOnChangeFunc(void (*decisecondsOnChangeFunc)(int))
+void Bomb::setDecisecondsOnChangeFunc(std::function<void(int)> decisecondsOnChangeFunc)
 {
     _decisecondsOnChangeFunc = decisecondsOnChangeFunc;
 }
 
-void Bomb::setExplodingFunc(void (*explodingFunc)())
+void Bomb::setExplodingFunc(std::function<void()> explodingFunc)
 {
     _explodingFunc = explodingFunc;
 }

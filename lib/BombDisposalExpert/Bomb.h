@@ -1,6 +1,8 @@
 #ifndef __BOMB_H_
 #define __BOMB_H_
 
+#include <functional>
+
 typedef enum
 {
     BOMB_STATUS_NORMAL = 0,
@@ -15,21 +17,23 @@ class Bomb
 public:
     Bomb();
     virtual ~Bomb();
+
     void setup();
     void loop();
+
     void start(int countDownSeconds);
     void defuse();
     void reset();
     BombStatus getStatus();
     int getDeciseconds();
-    void setDecisecondsOnChangeFunc(void (*decisecondsOnChangeFunc)(int));
-    void setExplodingFunc(void (*explodingFunc)());
+    void setDecisecondsOnChangeFunc(std::function<void(int)> decisecondsOnChangeFunc);
+    void setExplodingFunc(std::function<void()> explodingFunc);
 
 protected:
     BombStatus _status;
     int _countDownSeconds;
-    void (*_decisecondsOnChangeFunc)(int deciseconds);
-    void (*_explodingFunc)();
+    std::function<void(int)> _decisecondsOnChangeFunc;
+    std::function<void()> _explodingFunc;
 
 private:
     unsigned long _timer;

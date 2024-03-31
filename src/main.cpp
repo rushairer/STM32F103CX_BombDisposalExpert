@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <TM1638.h> // required because the way arduino deals with libraries
 #include <TM1640.h>
+#include "BombDisposalExpert.h"
 
 #define ISDEV 1
 
@@ -10,16 +11,11 @@
 #define BTN1_PIN PB3
 #define BTN2_PIN PA15
 
-#define BEE_PIN PA1
+#define BUZZER_PIN PA1
 
+#define SILENCE_NOTE 31
 #define ACTION_NOTE 1175
 #define DANGRE_NOTE 1319
-
-#ifdef ISDEV
-#define COUNT_NOTE 31
-#else
-#define COUNT_NOTE 880
-#endif
 
 #define LINE1_PIN PB12
 #define LINE2_PIN PB13
@@ -28,6 +24,8 @@
 #define LINE5_PIN PA8
 
 TM1640 module(SDA_PIN, SCL_PIN, 4);
+
+BombDisposalExpert bombDisposalExpert(&module, BUZZER_PIN);
 
 int number = 0;
 int i = 0;
@@ -51,52 +49,86 @@ void setup()
     pinMode(LINE4_PIN, INPUT_PULLUP);
     pinMode(LINE5_PIN, INPUT_PULLUP);
 
-    module.setDisplayToString("GAME");
-    delay(100);
+    bombDisposalExpert.setup();
 }
 
 void loop()
 {
-    int notesLength = sizeof(notes) / sizeof(notes[0]);
-    if (digitalRead(BTN1_PIN) == LOW)
+    bombDisposalExpert.loop();
+    if ((digitalRead(BTN1_PIN) == LOW) && (digitalRead(BTN2_PIN) == LOW))
     {
-        if (i < notesLength - 1)
+        if (bombDisposalExpert.getStatus() == BOMB_DISPOSAL_EXPERT_STATUS_PLAYING)
         {
-            i = i + 1;
-            number = notes[i];
-            tone(BEE_PIN, number);
+            bombDisposalExpert.reset();
+            delay(300);
         }
     }
-    if (digitalRead(BTN2_PIN) == LOW)
+    else
     {
-        if (i >= 1)
+        if (digitalRead(BTN1_PIN) == LOW)
         {
-            i = i - 1;
-            number = notes[i];
-            tone(BEE_PIN, number);
+            if (bombDisposalExpert.getStatus() != BOMB_DISPOSAL_EXPERT_STATUS_PLAYING)
+            {
+                bombDisposalExpert.select();
+                tone(BUZZER_PIN, bombDisposalExpert.getSetting().isDevMode ? SILENCE_NOTE : ACTION_NOTE);
+                delay(30);
+                noTone(BUZZER_PIN, true);
+                delay(300);
+            }
+        }
+        if (digitalRead(BTN2_PIN) == LOW)
+        {
+            if (bombDisposalExpert.getStatus() != BOMB_DISPOSAL_EXPERT_STATUS_PLAYING)
+            {
+                bombDisposalExpert.start();
+                tone(BUZZER_PIN, bombDisposalExpert.getSetting().isDevMode ? SILENCE_NOTE : ACTION_NOTE);
+                delay(30);
+                noTone(BUZZER_PIN, true);
+                delay(300);
+            }
         }
     }
 
-    static unsigned long timer = millis();
-    static int deciSeconds = 600;
-    if (millis() - timer >= 100)
-    {
-        timer += 100;
-        deciSeconds--; // 100 milliSeconds is equal to 1 deciSecond
+    // int notesLength = sizeof(notes) / sizeof(notes[0]);
+    // if (digitalRead(BTN1_PIN) == LOW)
+    // {
+    //     if (i < notesLength - 1)
+    //     {
+    //         i = i + 1;
+    //         number = notes[i];
+    //         tone(BEE_PIN, number);
+    //     }
+    // }
+    // if (digitalRead(BTN2_PIN) == LOW)
+    // {
+    //     if (i >= 1)
+    //     {
+    //         i = i - 1;
+    //         number = notes[i];
+    //         tone(BEE_PIN, number);
+    //     }
+    // }
 
-        if (deciSeconds % 10 == 0)
-        {
-            tone(BEE_PIN, COUNT_NOTE);
-        }
+    // static unsigned long timer = millis();
+    // static int deciSeconds = 600;
+    // if (millis() - timer >= 100)
+    // {
+    //     timer += 100;
+    //     deciSeconds--; // 100 milliSeconds is equal to 1 deciSecond
 
-        if (deciSeconds == 0)
-        { // Reset to 0 after counting for 1000 seconds.
-            deciSeconds = 600;
-        }
-        module.setDisplayToDecNumber(deciSeconds, _BV(2));
-    }
-    else if (millis() - timer >= 30)
-    {
-        noTone(BEE_PIN, true);
-    }
+    //     if (deciSeconds % 10 == 0)
+    //     {
+    //         tone(BEE_PIN, COUNT_NOTE);
+    //     }
+
+    //     if (deciSeconds == 0)
+    //     { // Reset to 0 after counting for 1000 seconds.
+    //         deciSeconds = 600;
+    //     }
+    //     module.setDisplayToDecNumber(deciSeconds, _BV(2));
+    // }
+    // else if (millis() - timer >= 30)
+    // {
+    //     noTone(BEE_PIN, true);
+    // }
 }
