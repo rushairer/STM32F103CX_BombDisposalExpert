@@ -66,6 +66,7 @@ protected:
     void checkLine(int number);
     void shuffleArray(BombDisposalExpertLineType arr[], int size);
     void defusedAction();
+    void explodingAction();
 };
 
 #endif

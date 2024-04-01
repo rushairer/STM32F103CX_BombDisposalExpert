@@ -5,6 +5,13 @@
 #define ACTION_NOTE 1175
 #define DANGRE_NOTE 1319
 
+#define NOTE_A3 220
+#define NOTE_C4 262
+#define NOTE_E4 330
+#define NOTE_G4 392
+#define NOTE_A4 440
+#define NOTE_C5 523
+
 BombDisposalExpert::BombDisposalExpert(TM1640 *tm1640, int buzzerPin)
     : _tm1640(tm1640),
       _buzzerPin(buzzerPin),
@@ -50,18 +57,7 @@ void BombDisposalExpert::setup()
     _bomb.setExplodingFunc(
         [this]()
         {
-            tone(_buzzerPin, _setting.isDevMode ? SILENCE_NOTE : DANGRE_NOTE);
-            for (int i = 0; i < 3; i++)
-            {
-                this->_tm1640->setDisplayToString("    ");
-                delay(300);
-                this->_tm1640->setDisplayToString("0000");
-                delay(300);
-                this->_tm1640->setDisplayToString("8888");
-                delay(300);
-            }
-            this->_status = BOMB_DISPOSAL_EXPERT_STATUS_GAMEOVER;
-            noTone(this->_buzzerPin, true);
+            this->explodingAction();
         });
 }
 
@@ -148,6 +144,7 @@ void BombDisposalExpert::loop()
 
 void BombDisposalExpert::reset()
 {
+    noTone(_buzzerPin, true);
     _status = BOMB_DISPOSAL_EXPERT_STATUS_NORMAL;
     _bomb.reset();
 
@@ -187,6 +184,7 @@ void BombDisposalExpert::select()
         if ((int)_settingIndex + 1 > (int)BOMB_DISPOSAL_EXPERT_SETTING_INDEX_DEVMODE)
         {
             _status = BOMB_DISPOSAL_EXPERT_STATUS_NORMAL;
+            _settingIndex = BOMB_DISPOSAL_EXPERT_SETTING_INDEX_SECONDS;
         }
         else
         {
@@ -195,7 +193,7 @@ void BombDisposalExpert::select()
     }
     else if (_status == BOMB_DISPOSAL_EXPERT_STATUS_GAMEOVER)
     {
-        _status = BOMB_DISPOSAL_EXPERT_STATUS_NORMAL;
+        reset();
     }
 }
 
@@ -219,19 +217,21 @@ void BombDisposalExpert::start()
             {
                 _setting.countDownSeconds = 10;
             }
+            break;
         case BOMB_DISPOSAL_EXPERT_SETTING_INDEX_CHANGE_SECONDS:
             _setting.changeSeconds = _setting.changeSeconds + 5;
             if (_setting.changeSeconds > 30)
             {
                 _setting.changeSeconds = 5;
             }
+            break;
         default:
             break;
         }
     }
     else if (_status == BOMB_DISPOSAL_EXPERT_STATUS_GAMEOVER)
     {
-        _status = BOMB_DISPOSAL_EXPERT_STATUS_NORMAL;
+        reset();
     }
 }
 
@@ -288,23 +288,51 @@ void BombDisposalExpert::checkLine(int number)
 
 void BombDisposalExpert::defusedAction()
 {
-    for (int i = 0; i < 3; i++)
+    int melody[] = {
+        NOTE_C4, NOTE_E4, NOTE_G4, NOTE_C5, NOTE_G4, NOTE_E4, NOTE_C4};
+    for (int i = 0; i < 7; i++)
     {
-        this->_tm1640->setDisplayToString("    ");
-        delay(300);
-        this->_tm1640->setDisplayToString("GOOD");
-        delay(300);
-        this->_tm1640->setDisplayToString("VVVV");
-        delay(300);
+        int noteDuration = 250;
+        tone(_buzzerPin, melody[i], noteDuration);
+        _tm1640->setDisplayToString(i % 2 == 0 ? "VVVV" : "    ");
+        delay(noteDuration * 1.3); //
+        noTone(_buzzerPin);
+        delay(50);
     }
-    this->_status = BOMB_DISPOSAL_EXPERT_STATUS_GAMEOVER;
+    _status = BOMB_DISPOSAL_EXPERT_STATUS_GAMEOVER;
+    noTone(_buzzerPin, true);
+}
+
+void BombDisposalExpert::explodingAction()
+{
+    for (int i = 0; i < 10; i++)
+    {
+        tone(_buzzerPin, _setting.isDevMode ? SILENCE_NOTE : DANGRE_NOTE);
+        _tm1640->setDisplayToString(i % 2 == 0 ? "8888" : "    ");
+        delay(50 * (10 - i));
+        noTone(_buzzerPin, true);
+    }
+    int melody[] = {
+        NOTE_A3, NOTE_C4, NOTE_A3, NOTE_C4, NOTE_A3, NOTE_C4, NOTE_A3, NOTE_C4};
+    for (int i = 0; i < 8; i++)
+    {
+        int noteDuration = 250;
+        tone(_buzzerPin, melody[i], noteDuration);
+        _tm1640->setDisplayToString(i % 2 == 0 ? "8888" : "    ");
+        delay(noteDuration * 1.3); //
+        noTone(_buzzerPin);
+        delay(50);
+    }
+
+    _status = BOMB_DISPOSAL_EXPERT_STATUS_GAMEOVER;
+    noTone(_buzzerPin, true);
 }
 
 void BombDisposalExpert::shuffleArray(BombDisposalExpertLineType arr[], int size)
 {
     for (int i = size - 1; i > 0; i--)
     {
-        int j = rand() % (i + 1);
+        int j = random(1, 99999) % (i + 1);
         BombDisposalExpertLineType temp = arr[i];
         arr[i] = arr[j];
         arr[j] = temp;
